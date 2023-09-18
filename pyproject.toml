@@ -11,7 +11,7 @@ requires-python = ">=3.7"
 license = "MIT"
 keywords = []
 authors = [
-  { name = "lminniear", email = "lminniear@issgs.net" },
+  { name = "Luke Minniear", email = "lukeminniear@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -34,9 +34,9 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/unknown/nessus-cli#readme"
-Issues = "https://github.com/unknown/nessus-cli/issues"
-Source = "https://github.com/unknown/nessus-cli"
+Documentation = "https://github.com/minniear/nessus-cli#readme"
+Issues = "https://github.com/minniear/nessus-cli/issues"
+Source = "https://github.com/minniear/nessus-cli"
 
 [tool.hatch.version]
 path = "src/nessus_cli/__about__.py"
