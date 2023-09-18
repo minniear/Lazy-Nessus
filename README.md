@@ -1,4 +1,4 @@
-# Nessu CLI
+# Nessus CLI
 
 ## Description
 I made this script for me to not have to log into Nessus every time I wanted to pause/resume a scan because I am lazy and I don't like logging into my computer at 3 AM. You can use this script to pause/resume a scan at a specific time, check if a scan is paused or running, or pause/resume a scan immediately all from the comfort of your terminal. You can also send Telegram notifications when a scan has been paused/resumed in case you are paranoid like me and want to make sure it actually happened.
