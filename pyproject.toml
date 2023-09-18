@@ -69,8 +69,8 @@ dependencies = [
   "urllib3==2.0.4"
 ]
 [tool.hatch.envs.default.scripts]
-help = "python3 src/nessus_cli/schedule_nessus.py {args:-h}"
+help = "python3 src/nessus_cli/main.py {args:-h}"
 
 [project.scripts]
-nessus-cli = "nessus_cli.schedule_nessus:main"
+nessus-cli = "nessus_cli.main:main"
 
