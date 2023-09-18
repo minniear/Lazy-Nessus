@@ -9,19 +9,15 @@ I made this script for me to not have to log into Nessus every time I wanted to 
 - Nessus Professional or Nessus Manager
 - Telegram Bot (optional)
 
-# Installation Locally
-
-
 ## Development
 1. Clone this repository
 ```bash
-git clone https://github.com/minniear/schedule-nesssus.git
+git clone https://github.com/minniear/nessus-cli.git
 ```
 2. Install the requirements, preferably in a virtual environment
-> NOTE: Not needed if you are using this script on RIVA laptops. All requirements are already installed.
 ```bash
-python3 -m venv schedule-nessus
-cd schedule-nessus
+python3 -m venv nessus-cli
+cd nessus-cli
 source bin/activate
 pip3 install -r requirements.txt
 ```
