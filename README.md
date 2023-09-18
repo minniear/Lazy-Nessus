@@ -1,4 +1,4 @@
-# Schedule Nessus
+# Nessu CLI
 
 ## Description
 I made this script for me to not have to log into Nessus every time I wanted to pause/resume a scan because I am lazy and I don't like logging into my computer at 3 AM. You can use this script to pause/resume a scan at a specific time, check if a scan is paused or running, or pause/resume a scan immediately all from the comfort of your terminal. You can also send Telegram notifications when a scan has been paused/resumed in case you are paranoid like me and want to make sure it actually happened.
@@ -8,6 +8,19 @@ I made this script for me to not have to log into Nessus every time I wanted to 
 - Python 3
 - Nessus Professional or Nessus Manager
 - Telegram Bot (optional)
+
+## Installation
+1. Pip install the script
+```bash
+pip3 install nessus-cli
+```
+or
+```bash
+pip install nessus-cli
+```
+2. Create a Telegram Bot (optional)
+3. Create a .env file in your home directory and add your API keys and other variables (see below) (optional)
+4. Run the script
 
 ## Development
 1. Clone this repository
@@ -27,8 +40,8 @@ pip3 install -r requirements.txt
 
 ## Usage
 ```
-usage: nessus-cli [-h] [-S SERVER] [-P PORT] [-s SCAN_ID] -a {pause,resume,check,list,export_nessus} [-t TIME] [-aT API_TOKEN] [-c X_COOKIE] [-u USERNAME] [-p PASSWORD]
-                          [-tT TELEGRAMTOKEN] [-tC TELEGRAMCHATID] [-v]
+usage: nessus-cli [-h] [-S SERVER] [-P PORT] [-s SCAN_ID] -a {pause,resume,check,list,export_nessus} [-t TIME] [-aT API_TOKEN] [-c X_COOKIE] [-u USERNAME] [-p PASSWORD] [-tT TELEGRAMTOKEN]
+               [-tC TELEGRAMCHATID] [-v]
 
 Pause, resume, list, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.
 
@@ -48,19 +61,19 @@ Nessus:
 
 Authentication:
   -aT API_TOKEN, --api_token API_TOKEN
-                        Nessus API token (defaults to NESSUS_API_TOKEN in .env file)
+                        Nessus API token (defaults to NESSUS_API_TOKEN in ~/.env file)
   -c X_COOKIE, --x_cookie X_COOKIE
-                        Nessus X-Cookie (defaults to NESSUS_X_COOKIE in .env file)
+                        Nessus X-Cookie (defaults to NESSUS_X_COOKIE in ~/.env file)
   -u USERNAME, --username USERNAME
                         Nessus username (defaults to root)
   -p PASSWORD, --password PASSWORD
-                        Nessus password (defaults to NESSUS_PASSWORD in .env file)
+                        Nessus password (defaults to NESSUS_PASSWORD in ~/.env file)
 
 Telegram:
   -tT TELEGRAMTOKEN, --telegramToken TELEGRAMTOKEN
-                        Telegram bot token (defaults to TELEGRAM_BOT_TOKEN in .env file)
+                        Telegram bot token (defaults to TELEGRAM_BOT_TOKEN in ~/.env file)
   -tC TELEGRAMCHATID, --telegramChatID TELEGRAMCHATID
-                        Telegram chat ID (defaults to TELEGRAM_CHAT_ID in .env file)
+                        Telegram chat ID (defaults to TELEGRAM_CHAT_ID in ~/.env file)
 ```
 ## Examples
 List all scans
