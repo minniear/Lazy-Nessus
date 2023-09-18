@@ -8,8 +8,26 @@ dynamic = ["version"]
 description = 'Pause, resume, list, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.'
 readme = "README.md"
 requires-python = ">=3.7"
-license = "MIT"
-keywords = []
+license = "GPL-3.0-or-later"
+keywords = [
+  "nessus",
+  "nessus-cli",
+  "nessus pause",
+  "nessus resume",
+  "nessus status",
+  "nessus export",
+  "nessus schedule",
+  "nessus telegram",
+  "nessus bot",
+  "nessus telegram bot",
+  "nessus telegram bot pause",
+  "nessus telegram bot resume",
+  "nessus telegram bot status",
+  "nessus telegram bot export",
+  "nessus telegram bot schedule",
+  "nessus telegram bot schedule pause",
+  "nessus telegram bot schedule resume",
+]
 authors = [
   { name = "Luke Minniear", email = "lukeminniear@gmail.com" },
 ]
@@ -51,7 +69,7 @@ dependencies = [
   "urllib3==2.0.4"
 ]
 [tool.hatch.envs.default.scripts]
-nessus-cli = "python3 src/nessus_cli/schedule_nessus.py {args:-h}"
+help = "python3 src/nessus_cli/schedule_nessus.py {args:-h}"
 
 [project.scripts]
 nessus-cli = "nessus_cli.schedule_nessus:main"
