@@ -71,8 +71,8 @@ def print_success(message: str) -> None:
     """
     print(f"{SUCCESS} SUCCESS: {message}{RESET}")
 
-
-dotenv_path = "~/.env"
+# Get environment variables from ~/.env
+dotenv_path = os.path.join(os.path.expanduser("~"), ".env")
 load_dotenv(dotenv_path)
 
 
