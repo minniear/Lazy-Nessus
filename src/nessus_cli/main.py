@@ -29,6 +29,15 @@ from argparse import ArgumentParser, Namespace
 from xml.etree import ElementTree as ET
 from pathlib import Path
 
+from nessus_cli.scans.actions.pause import pause_action_args
+from nessus_cli.scans.actions.resume import resume_action_args
+from nessus_cli.scans.actions.list import list_action_args
+from nessus_cli.scans.actions.check import check_action_args
+from nessus_cli.scans.actions.export import export_action_args
+from nessus_cli.scans.actions.search import search_action_args
+
+action_arg_funcs = [ pause_action_args, resume_action_args, list_action_args, check_action_args, export_action_args, search_action_args ]
+
 # Disable SSL warnings
 requests.packages.urllib3.disable_warnings()
 INFO = "\033[93m[!]"
@@ -71,42 +80,26 @@ def print_success(message: str) -> None:
     """
     print(f"{SUCCESS} SUCCESS: {message}{RESET}")
 
-
-dotenv_path = "~/.env"
+# Get environment variables from ~/.env
+dotenv_path = os.path.join(os.path.expanduser("~"), ".env")
 load_dotenv(dotenv_path)
 
-
-# TODO: Adds subparser for each action
 def get_args() -> Namespace:
-    parser = ArgumentParser(description="Pause, resume, list, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.")
-    nessus_group = parser.add_argument_group("Nessus")
-    nessus_group.add_argument(
-        "-S",
-        "--server",
-        action="store",
-        help="Nessus server IP address or hostname (default: localhost)",
-        default="localhost",
-    )
-    nessus_group.add_argument(
-        "-P", "--port", required=False, action="store", help="Nessus server port (default: 8834)", default=8834
-    )
-    nessus_group.add_argument("-s", "--scan_id", action="store", help="Nessus scan ID")
-    nessus_group.add_argument(
-        "-a",
-        "--action",
-        required=True,
-        action="store",
-        help="Action to perform",
-        type=str,
-        choices=["pause", "resume", "check", "list", "export_nessus"],
-    )
-    nessus_group.add_argument(
-        "-t",
-        "--time",
-        action="store",
-        help="Time to pause or resume the scan. Only used with pause or resume actions (format: YYYY-MM-DD HH:MM)",
-    )
-    auth_group = parser.add_argument_group("Authentication")
+    parser = ArgumentParser(description='Pause, resume, list, search for, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.')
+    # add subparser for category of actions
+    category_subparsers = parser.add_subparsers(title="Categories", description="Available categories", required=True)
+    
+    scans = category_subparsers.add_parser("scans", help="Actions for scans")
+    scans_actions_subparsers = scans.add_subparsers(dest="action", title="Actions", description="Available actions", required=True)
+    
+    # TODO: Adds subparser for each category of actions
+    # policies = category_subparsers.add_parser("policies", help="Actions for policies")
+    # credentials = category_subparsers.add_parser("credentials", help="Actions for credentials")
+    # policies_actions_subparsers = policies.add_subparsers(dest="action", title="Actions", description="Available actions", required=True)
+    # credentials_actions_subparsers = credentials.add_subparsers(dest="action", title="Actions", description="Available actions", required=True)
+    
+    std_parser = ArgumentParser(add_help=False)
+    auth_group = std_parser.add_argument_group("Authentication", "Authentication options")
     auth_group.add_argument(
         "-aT",
         "--api_token",
@@ -139,24 +132,22 @@ def get_args() -> Namespace:
         help="Nessus password (defaults to NESSUS_PASSWORD in ~/.env file)",
         type=str,
     )
-    telegram_group = parser.add_argument_group("Telegram")
-    telegram_group.add_argument(
-        "-tT",
-        "--telegramToken",
+    
+    nessus_group = std_parser.add_argument_group("Nessus", "Nessus options")
+    nessus_group.add_argument(
+        "-S",
+        "--server",
         action="store",
-        default=os.getenv("TELEGRAM_BOT_TOKEN"),
-        help="Telegram bot token (defaults to TELEGRAM_BOT_TOKEN in ~/.env file)",
-        type=str,
+        help="Nessus server IP address or hostname (default: localhost)",
+        default="localhost",
     )
-    telegram_group.add_argument(
-        "-tC",
-        "--telegramChatID",
-        action="store",
-        default=os.getenv("TELEGRAM_CHAT_ID"),
-        help="Telegram chat ID (defaults to TELEGRAM_CHAT_ID in ~/.env file)",
-        type=str,
+    nessus_group.add_argument(
+        "-P", "--port", required=False, action="store", help="Nessus server port (default: 8834)", default=8834
     )
-    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+    
+    for action_arg_func in action_arg_funcs:
+        scans_actions_subparsers = action_arg_func(scans_actions_subparsers, std_parser)
+ 
     args = parser.parse_args()
     return args
 
@@ -354,23 +345,30 @@ def reformat_time(input: str) -> str:
     except ValueError:
         return False
 
-def get_scan_export(args: Namespace):
-    """Get a list of scans
+def get_scan_export(args: Namespace) -> dict[str, str]:
+    """Get the export of a scan
 
     Args:
         args (Namespace): Arguments
 
     Returns:
-        
+        dict[str, str]: Scan export
     """
     url_base = f"https://{args.server}:{args.port}/scans/{args.scan_id}/export"
     
     # get the export token and file
     url = url_base
     headers = {"X-Api-Token": args.api_token, "X-Cookie": args.x_cookie}
-    body = {
-        "format": "nessus"
-    }
+    
+    if args.format == "nessus":
+        body = {
+            "format": "nessus",
+        }
+    elif args.format == "html":
+        body = {
+            "format": "html",
+            "template_id": 9634
+        }
     response = requests.post(url, headers=headers, verify=False, data=body)
     data = json.loads(response.text)
     if response.status_code != 200:
@@ -410,12 +408,39 @@ def get_scan_export(args: Namespace):
     else:
         return {"status": type, "name": "error", "response_code": response.status_code}
 
+def get_scan_search(args: Namespace) -> dict[str, str]:
+    """Get the scans that match the search string
+
+    Args:
+        args (Namespace): Arguments
+
+    Returns:
+        dict[str, str]: Scan search results
+    """
+    url = f"https://{args.server}:{args.port}/scans"
+    headers = {"X-Api-Token": args.api_token, "X-Cookie": args.x_cookie}
+    response = requests.get(url, headers=headers, verify=False)
+    scans = json.loads(response.text)
+    if response.status_code != 200:
+        return {"status": scans["error"], "name": "error", "response_code": response.status_code}
+    list = []
+    for scan in scans["scans"]:
+        search_string = args.search_string.lower()
+        scan_name = scan["name"].lower()
+        if search_string in scan_name:
+            list.append({"id": scan["id"], "name": scan["name"], "status": scan["status"]})
+    
+    if len(list) == 0:
+        return {"status": "No scans found", "name": "error", "response_code": response.status_code}
+
+    return {"status": list, "name": "scans", "response_code": response.status_code}
+
 def main():
     args = get_args()
 
     formatted_time = None
 
-    if args.action not in ["check", "list", "export_nessus"]:
+    if args.action in ["pause", "resume"]:
         # check if time is specified and if it is in the correct format
         if args.time is not None and isTimeFormat(args.time) == False:
             print_error("Invalid time format (YYYY-MM-DD HH:MM)")
@@ -428,11 +453,6 @@ def main():
                 print_error("Time specified is in the past")
                 sys.exit(1)
 
-    # check if scan_id is specified for all actions except list before getting headers
-    if args.action not in ["list"]:
-        if args.scan_id is None:
-            print_error("Scan ID is required to run that action")
-            sys.exit(1)
 
     # get X-API-Token and X-Cookie
     headers = get_headers(args)
@@ -440,7 +460,7 @@ def main():
     args.x_cookie = headers["X-Cookie"]
     
     # TODO: Make a stream for the export in case the file is too large
-    if args.action == "export_nessus":
+    if args.action == "export":
         export = get_scan_export(args)
         if export["response_code"] != 200 or export["name"] == "error":
             print_error(f"Status code {export['response_code']} - Content type: {export['status']}")
@@ -469,12 +489,13 @@ def main():
         print_success(f"Exported scan to {filename}")
         sys.exit(0)
         
-    # list scans
-    if args.action == "list":
-        scans = get_scans_list(args)
-        response_code = scans["response_code"]
+    # list and search actions
+    if args.action in ["list", "search"]:
+        scans = get_scans_list(args) if args.action == "list" else get_scan_search(args)
         response = scans["status"]
-        if response_code != 200:
+        response_name = scans["name"]
+        response_code = scans["response_code"]
+        if response_name == "error":
             print_error(f"Status code {response_code} - {response}")
             sys.exit(1)
         if args.verbose:

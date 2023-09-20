@@ -1,7 +1,9 @@
 # Nessus CLI
 
 ## Description
-I made this script for me to not have to log into Nessus every time I wanted to pause/resume a scan because I am lazy and I don't like logging into my computer at 3 AM. You can use this script to pause/resume a scan at a specific time, check if a scan is paused or running, or pause/resume a scan immediately all from the comfort of your terminal. You can also send Telegram notifications when a scan has been paused/resumed in case you are paranoid like me and want to make sure it actually happened.
+I made this script for me to not have to log into Nessus every time I wanted to pause/resume a scan because I am lazy and I don't like logging into my computer at 3 AM. I also added Telegram support since I'm paranoid and want to make sure my actions actually worked.
+
+What started as a simple script to pause/resume scans has turned into a full-fledged CLI tool for Nessus. I have added the ability to list scans, check the status of a scan, export a scan, search for a scan, pause a scan, and resume a scan. I have also added the ability to use a .env file to store your API keys and other variables. This is useful if you want to use the Telegram bot functionality. I have also added the ability to pass all variables as command line arguments if you do not want to use a .env file.
 
 
 ## Requirements
@@ -38,63 +40,30 @@ pip3 install -r requirements.txt
 4. Create a .env file in your home directory and add your API keys and other variables (see below) (optional)
 5. Run the script
 
-## Usage
-```
-usage: nessus-cli [-h] [-S SERVER] [-P PORT] [-s SCAN_ID] -a {pause,resume,check,list,export_nessus} [-t TIME] [-aT API_TOKEN] [-c X_COOKIE] [-u USERNAME] [-p PASSWORD] [-tT TELEGRAMTOKEN]
-               [-tC TELEGRAMCHATID] [-v]
-
-Pause, resume, list, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.
-
-options:
-  -h, --help            show this help message and exit
-  -v, --verbose         Enable verbose output
-
-Nessus:
-  -S SERVER, --server SERVER
-                        Nessus server IP address or hostname (default: localhost)
-  -P PORT, --port PORT  Nessus server port (default: 8834)
-  -s SCAN_ID, --scan_id SCAN_ID
-                        Nessus scan ID
-  -a {pause,resume,check,list,export_nessus}, --action {pause,resume,check,list,export_nessus}
-                        Action to perform
-  -t TIME, --time TIME  Time to pause or resume the scan. Only used with pause or resume actions (format: YYYY-MM-DD HH:MM)
-
-Authentication:
-  -aT API_TOKEN, --api_token API_TOKEN
-                        Nessus API token (defaults to NESSUS_API_TOKEN in ~/.env file)
-  -c X_COOKIE, --x_cookie X_COOKIE
-                        Nessus X-Cookie (defaults to NESSUS_X_COOKIE in ~/.env file)
-  -u USERNAME, --username USERNAME
-                        Nessus username (defaults to root)
-  -p PASSWORD, --password PASSWORD
-                        Nessus password (defaults to NESSUS_PASSWORD in ~/.env file)
-
-Telegram:
-  -tT TELEGRAMTOKEN, --telegramToken TELEGRAMTOKEN
-                        Telegram bot token (defaults to TELEGRAM_BOT_TOKEN in ~/.env file)
-  -tC TELEGRAMCHATID, --telegramChatID TELEGRAMCHATID
-                        Telegram chat ID (defaults to TELEGRAM_CHAT_ID in ~/.env file)
-```
 ## Examples
 List all scans
 ```bash
-nessus-cli -a list
+nessus-cli scans list
 ```
 Check the status or a single scan on a given server
 ```bash
-nessus-cli -S 192.168.250.158 -s 13 -a check
+nessus-cli scans check -S 192.168.250.158 -s 13
 ```
 Pause a scan at a specific time with known API token and X-Cookie
 ```bash
-nessus-cli -S 10.10.10.10 -p 8080 -s 11 -a pause -t "2021-01-01 00:00" -tT "1234567890:ABCDEF1234567890" -tC "1234567890" -aT "1a2b3c4d-1a2b-3c4d-1a2b-3c4d1a2b3c4d" -c "1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d" -v
+nessus-cli scans pause -S 10.10.10.10 -p 8080 -s 11 -t "2021-01-01 00:00" -tT "1234567890:ABCDEF1234567890" -tC "1234567890" -aT "1a2b3c4d-1a2b-3c4d-1a2b-3c4d1a2b3c4d" -c "1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d" -v
 ```
 Resume a localhost scan at a specific time using a password
 ```bash
-nessus-cli -p 8080 -s 11 -a resume -t "2021-01-01 09:45" -p "1a2b3c4d5e6f7g8h9i0j"
+nessus-cli scans resume -p 8080 -s 11 -t "2021-01-01 09:45" -p "1a2b3c4d5e6f7g8h9i0j"
 ```
 Export a scan as a .nessus file
 ```bash
-nessus-cli -s 4 -a export_nessus -p "1a2b3c4d5e6f7g8h9i0j"
+nessus-cli scans export -f nessus -s 4 -p "1a2b3c4d5e6f7g8h9i0j"
+```
+Search for a scan by name
+```bash
+nessus-cli scans search -s "Scan Name"
 ```
 ## Example .env file
 All optional variables are added. If you do not want to use the .env file, you can pass the variables as command line arguments.
