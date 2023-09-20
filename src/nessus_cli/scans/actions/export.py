@@ -21,7 +21,7 @@ def export_action_args(parser: _SubParsersAction, std_parser: ArgumentParser) ->
         type=int,
         required=True,
     )
-    # TODO: Add support for multiple formats
+    # TODO: Add support for more formats
     required_groug.add_argument(
         "-f",
         "--format",

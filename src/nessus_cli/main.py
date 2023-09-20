@@ -29,6 +29,8 @@ from argparse import ArgumentParser, Namespace
 from xml.etree import ElementTree as ET
 from pathlib import Path
 
+from nessus_cli.utils.spinner import Spinner
+
 from nessus_cli.scans.actions.pause import pause_action_args
 from nessus_cli.scans.actions.resume import resume_action_args
 from nessus_cli.scans.actions.list import list_action_args
@@ -86,7 +88,6 @@ load_dotenv(dotenv_path)
 
 def get_args() -> Namespace:
     parser = ArgumentParser(description='Pause, resume, list, search for, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.')
-    # add subparser for category of actions
     category_subparsers = parser.add_subparsers(title="Categories", description="Available categories", required=True)
     
     scans = category_subparsers.add_parser("scans", help="Actions for scans")
@@ -191,7 +192,6 @@ def get_scans_list(args: Namespace) -> dict[str, str]:
 
     return {"status": list, "name": "scans", "response_code": response.status_code}
 
-
 def get_headers(args: Namespace) -> dict[str, str]:
     """Get X-API-Token and X-Cookie
 
@@ -269,7 +269,6 @@ def get_headers(args: Namespace) -> dict[str, str]:
         sys.exit(1)
     return headers
 
-
 def scan_actions(args: Namespace) -> None:
     """Pause or resume a scan
 
@@ -295,7 +294,6 @@ def scan_actions(args: Namespace) -> None:
         print_error('Invalid action specified (must be "pause" or "resume")')
         sys.exit(1)
 
-
 def telegram_bot_sendtext(bot_message: str, args: Namespace) -> None:
     """Send a message to a telegram bot
 
@@ -313,7 +311,6 @@ def telegram_bot_sendtext(bot_message: str, args: Namespace) -> None:
             print("Error sending telegram message. Check token and chat ID")
             sys.exit(1)
 
-
 def isTimeFormat(input: str) -> bool:
     """Check if time is in the correct format
 
@@ -328,7 +325,6 @@ def isTimeFormat(input: str) -> bool:
         return True
     except ValueError:
         return False
-
 
 def reformat_time(input: str) -> str:
     """Reformat time to the correct format
@@ -365,31 +361,54 @@ def get_scan_export(args: Namespace) -> dict[str, str]:
             "format": "nessus",
         }
     elif args.format == "html":
+        # get the template id because each environment has different template ids
+        template_id = None
+        url = f"https://{args.server}:{args.port}/reports/custom/templates"
+        response = requests.get(url, headers=headers, verify=False)
+        data: list = json.loads(response.text)
+        if response.status_code != 200:
+            return {"status": data["error"], "name": "error", "response_code": response.status_code}
+        if args.verbose:
+            print_success(f"X-API-Token and X-Cookie work!")
+        # get the template id from a dict list of templates
+        for template in data:
+            # TODO: Make a list templates action
+            if template["name"] == "Detailed Vulnerabilities By Plugin":
+                template_id = template["id"]
+                break
+        # if template_id is not found then exit
+        if template_id == None:
+            return {"status": "No Detailed Vulnerabilities By Plugin template found", "name": "error", "response_code": response.status_code}
+        # set the payload
         body = {
             "format": "html",
-            "template_id": 9634
+            "template_id": template_id,
         }
+        if args.verbose:
+            print_info(f"Obtained template id")
+    url = url_base
     response = requests.post(url, headers=headers, verify=False, data=body)
     data = json.loads(response.text)
     if response.status_code != 200:
         return {"status": response.text, "name": "error", "response_code": response.status_code}
     
     if args.verbose:
-        print_success(f"X-API-Token and X-Cookie work!")
         print_info(f"Obtained export token and file")
     token,file = data["token"], data["file"]
     
     # check if export is ready
     url = f"{url_base}/{file}/status"
     response = requests.get(url, headers=headers, verify=False)
+    if response.status_code != 200:
+        return {"status": response.text, "name": "error", "response_code": response.status_code}
     data = json.loads(response.text)
-    while data["status"] != "ready":
-        response = requests.get(url, headers=headers, verify=False)
-        data = json.loads(response.text)
-        if args.verbose:
-            print_info(f"Waiting for export to be ready..")
-        time.sleep(5)
-        
+    with Spinner(f"{INFO} INFO: Waiting for export to be ready...{RESET}"):
+        while data["status"] != "ready":
+            response = requests.get(url, headers=headers, verify=False)
+            data = json.loads(response.text)
+            time.sleep(5)
+    # without this print statement the text above it will be overwritten
+    print()
     # download export
     url = f"{url_base}/{file}/download"
     if args.verbose:
@@ -463,7 +482,7 @@ def main():
     if args.action == "export":
         export = get_scan_export(args)
         if export["response_code"] != 200 or export["name"] == "error":
-            print_error(f"Status code {export['response_code']} - Content type: {export['status']}")
+            print_error(f"Status code {export['response_code']} - Reason: {export['status']}")
             sys.exit(1)
                 
         filename = export["status"]["filename"]
