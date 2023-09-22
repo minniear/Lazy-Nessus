@@ -1,4 +1,4 @@
-# Nessus CLI
+# Lazy-Nessus
 
 ## Description
 I made this script for me to not have to log into Nessus every time I wanted to pause/resume a scan because I am lazy and I don't like logging into my computer at 3 AM. I also added Telegram support since I'm paranoid and want to make sure my actions actually worked.
