@@ -29,14 +29,14 @@ from argparse import ArgumentParser, Namespace
 from xml.etree import ElementTree as ET
 from pathlib import Path
 
-from nessus_cli.utils.spinner import Spinner
+from lazy_nessus.utils.spinner import Spinner
 
-from nessus_cli.scans.actions.pause import pause_action_args
-from nessus_cli.scans.actions.resume import resume_action_args
-from nessus_cli.scans.actions.list import list_action_args
-from nessus_cli.scans.actions.check import check_action_args
-from nessus_cli.scans.actions.export import export_action_args
-from nessus_cli.scans.actions.search import search_action_args
+from lazy_nessus.scans.actions.pause import pause_action_args
+from lazy_nessus.scans.actions.resume import resume_action_args
+from lazy_nessus.scans.actions.list import list_action_args
+from lazy_nessus.scans.actions.check import check_action_args
+from lazy_nessus.scans.actions.export import export_action_args
+from lazy_nessus.scans.actions.search import search_action_args
 
 action_arg_funcs = [ pause_action_args, resume_action_args, list_action_args, check_action_args, export_action_args, search_action_args ]
 
