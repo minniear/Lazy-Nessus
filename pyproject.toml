@@ -52,12 +52,12 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/minniear/nessus-cli#readme"
-Issues = "https://github.com/minniear/nessus-cli/issues"
-Source = "https://github.com/minniear/nessus-cli"
+Documentation = "https://github.com/minniear/lazy-nessus#readme"
+Issues = "https://github.com/minniear/lazy-nessus/issues"
+Source = "https://github.com/minniear/lazy-nessus"
 
 [tool.hatch.version]
-path = "src/lazy-nessus/__about__.py"
+path = "src/lazy_nessus/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -69,8 +69,8 @@ dependencies = [
   "urllib3==2.0.4"
 ]
 [tool.hatch.envs.default.scripts]
-help = "python3 src/lazy-nessus/main.py {args:-h}"
+help = "python3 src/lazy_nessus/main.py {args:-h}"
 
 [project.scripts]
-nessus-cli = "lazy-nessus.main:main"
+lazy-nessus="lazy_nessus.main:main"
 
