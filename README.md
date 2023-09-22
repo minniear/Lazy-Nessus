@@ -14,11 +14,11 @@ What started as a simple script to pause/resume scans has turned into a full-fle
 ## Installation
 1. Pip install the script
 ```bash
-pip3 install nessus-cli
+pip3 install lazy-nessus
 ```
 or
 ```bash
-pip install nessus-cli
+pip install lazy-nessus
 ```
 2. Create a Telegram Bot (optional)
 3. Create a .env file in your home directory and add your API keys and other variables (see below) (optional)
@@ -27,12 +27,12 @@ pip install nessus-cli
 ## Development
 1. Clone this repository
 ```bash
-git clone https://github.com/minniear/nessus-cli.git
+git clone https://github.com/minniear/lazy-nessus.git
 ```
 2. Install the requirements, preferably in a virtual environment
 ```bash
-python3 -m venv nessus-cli
-cd nessus-cli
+python3 -m venv lazy-nessus
+cd lazy-nessus
 source bin/activate
 pip3 install -r requirements.txt
 ```
@@ -43,27 +43,27 @@ pip3 install -r requirements.txt
 ## Examples
 List all scans
 ```bash
-nessus-cli scans list
+lazy-nessus scans list
 ```
 Check the status or a single scan on a given server
 ```bash
-nessus-cli scans check -S 192.168.250.158 -s 13
+lazy-nessus scans check -S 192.168.250.158 -s 13
 ```
 Pause a scan at a specific time with known API token and X-Cookie
 ```bash
-nessus-cli scans pause -S 10.10.10.10 -p 8080 -s 11 -t "2021-01-01 00:00" -tT "1234567890:ABCDEF1234567890" -tC "1234567890" -aT "1a2b3c4d-1a2b-3c4d-1a2b-3c4d1a2b3c4d" -c "1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d" -v
+lazy-nessus scans pause -S 10.10.10.10 -p 8080 -s 11 -t "2021-01-01 00:00" -tT "1234567890:ABCDEF1234567890" -tC "1234567890" -aT "1a2b3c4d-1a2b-3c4d-1a2b-3c4d1a2b3c4d" -c "1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d" -v
 ```
 Resume a localhost scan at a specific time using a password
 ```bash
-nessus-cli scans resume -p 8080 -s 11 -t "2021-01-01 09:45" -p "1a2b3c4d5e6f7g8h9i0j"
+lazy-nessus scans resume -p 8080 -s 11 -t "2021-01-01 09:45" -p "1a2b3c4d5e6f7g8h9i0j"
 ```
 Export a scan as a .nessus file
 ```bash
-nessus-cli scans export -f nessus -s 4 -p "1a2b3c4d5e6f7g8h9i0j"
+lazy-nessus scans export -f nessus -s 4 -p "1a2b3c4d5e6f7g8h9i0j"
 ```
 Search for a scan by name
 ```bash
-nessus-cli scans search -s "Scan Name"
+lazy-nessus scans search -s "Scan Name"
 ```
 ## Example .env file
 All optional variables are added. If you do not want to use the .env file, you can pass the variables as command line arguments.
