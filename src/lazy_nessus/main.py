@@ -29,8 +29,10 @@ from argparse import ArgumentParser, Namespace
 from xml.etree import ElementTree as ET
 from pathlib import Path
 
-from lazy_nessus.utils.spinner import Spinner
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from lazy_nessus.__about__ import __version__
+from lazy_nessus.utils.spinner import Spinner
 from lazy_nessus.scans.actions.pause import pause_action_args
 from lazy_nessus.scans.actions.resume import resume_action_args
 from lazy_nessus.scans.actions.list import list_action_args
@@ -88,6 +90,13 @@ load_dotenv(dotenv_path)
 
 def get_args() -> Namespace:
     parser = ArgumentParser(description='Pause, resume, list, search for, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.')
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+        help="Show program's version number and exit",
+    )
     category_subparsers = parser.add_subparsers(title="Categories", description="Available categories", required=True)
     
     scans = category_subparsers.add_parser("scans", help="Actions for scans")
@@ -492,9 +501,9 @@ def main():
         
         if Path(filename).is_file():
             # if file exists then append the time to the end of the filename
-            time = time.strftime("%Y-%m-%d_%H-%M-%S")
+            appended_time = time.strftime("%Y-%m-%d_%H-%M-%S")
             filename_without_nessus = filename.split(".")[0]
-            filename = f"{filename_without_nessus}_{time}.nessus"
+            filename = f"{filename_without_nessus}_{appended_time}.nessus"
             
         try:
             with open(f"{filename}", "w") as f:

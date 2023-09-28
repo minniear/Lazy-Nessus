@@ -12,33 +12,25 @@ What started as a simple script to pause/resume scans has turned into a full-fle
 - Telegram Bot (optional)
 
 ## Installation
-1. Pip install the script
-```bash
-pip3 install lazy-nessus
-```
-or
+1. Pip or pipx install
 ```bash
 pip install lazy-nessus
+```
+```bash
+pipx install lazy-nessus
 ```
 2. Create a Telegram Bot (optional)
 3. Create a .env file in your home directory and add your API keys and other variables (see below) (optional)
 4. Run the script
-
-## Development
-1. Clone this repository
-```bash
-git clone https://github.com/minniear/lazy-nessus.git
+## Example .env file
+All optional variables are added. If you do not want to use the .env file, you can pass the variables as command line arguments.
 ```
-2. Install the requirements, preferably in a virtual environment
-```bash
-python3 -m venv lazy-nessus
-cd lazy-nessus
-source bin/activate
-pip3 install -r requirements.txt
+TELEGRAM_BOT_TOKEN="1234567890:ABCDEF1234567890"
+TELEGRAM_CHAT_ID="1234567890"
+NESSUS_API_TOKEN="1a2b3c4d-1a2b-3c4d-1a2b-3c4d1a2b3c4d"
+NESSUS_X_COOKIE="1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d"
+NESSUS_PASSWORD="1a2b3c4d5e6f7g8h9i0j"
 ```
-3. Create a Telegram Bot (optional)
-4. Create a .env file in your home directory and add your API keys and other variables (see below) (optional)
-5. Run the script
 
 ## Examples
 List all scans
@@ -65,16 +57,6 @@ Search for a scan by name
 ```bash
 lazy-nessus scans search -s "Scan Name"
 ```
-## Example .env file
-All optional variables are added. If you do not want to use the .env file, you can pass the variables as command line arguments.
-```
-TELEGRAM_BOT_TOKEN="1234567890:ABCDEF1234567890"
-TELEGRAM_CHAT_ID="1234567890"
-NESSUS_API_TOKEN="1a2b3c4d-1a2b-3c4d-1a2b-3c4d1a2b3c4d"
-NESSUS_X_COOKIE="1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d"
-NESSUS_PASSWORD="1a2b3c4d5e6f7g8h9i0j"
-```
-
 
 ## How to obtain the Nessus API token and X-Cookie
 1. Log into Nessus
@@ -98,7 +80,34 @@ NESSUS_PASSWORD="1a2b3c4d5e6f7g8h9i0j"
     - EXAMPLE: `curl "https://api.telegram.org/bot123456789:jbd78sadvbdy63d37gda37bd8/sendMessage?chat_id=123456&text=%22You just got a shell! Go check your C2 server!%22"`
 9. Copy the "id" value and paste it into the .env file
 10. Copy the "token" value and paste it into the .env file
+## Development
+### Windows
+1. Clone this repository
+```bash
+git clone https://github.com/minniear/lazy-nessus.git
+```
+2. Install the requirements, preferably in a virtual environment
+```bash
+python3 -m venv lazy-nessus
+cd lazy-nessus
+Scripts\activate.bat
+pip install -r requirements.txt
+```
+3. Create a Telegram Bot (optional)
+4. Create a .env file in your home directory and add your API keys and other variables (see above) (optional)
 
-
-
+### Linux/Mac
+1. Clone this repository
+```bash
+git clone
+```
+2. Install the requirements, preferably in a virtual environment
+```bash
+python -m venv lazy-nessus
+cd lazy-nessus
+source bin/activate
+pip install -r requirements.txt
+```
+3. Create a Telegram Bot (optional)
+4. Create a .env file in your home directory and add your API keys and other variables (see above) (optional)
 

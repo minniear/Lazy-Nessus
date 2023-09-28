@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
 [project]
 name = "lazy-nessus"
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 description = 'Pause, resume, list, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.'
 readme = "README.md"
 requires-python = ">=3.7"
@@ -42,14 +42,9 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = [
-  "certifi==2023.7.22",
-  "charset-normalizer==3.2.0",
-  "idna==3.4",
-  "python-dotenv==1.0.0",
-  "requests==2.31.0",
-  "urllib3==2.0.4"
-]
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
 
 [project.urls]
 Documentation = "https://github.com/minniear/lazy-nessus#readme"
