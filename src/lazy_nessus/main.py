@@ -161,7 +161,7 @@ def get_args() -> Namespace:
     args = parser.parse_args()
     return args
 
-def get_scan_status(args: Namespace) -> dict[str, str]:
+def get_scan_status(args: Namespace) -> dict:
     """Get the status of a scan
 
     Args:
@@ -178,7 +178,7 @@ def get_scan_status(args: Namespace) -> dict[str, str]:
         return {"status": scan["error"], "name": "error", "response_code": response.status_code}
     return {"status": scan["info"]["status"], "name": scan["info"]["name"], "response_code": response.status_code}
 
-def get_scans_list(args: Namespace) -> dict[str, str]:
+def get_scans_list(args: Namespace) -> dict:
     """Get a list of scans
 
     Args:
@@ -199,7 +199,7 @@ def get_scans_list(args: Namespace) -> dict[str, str]:
 
     return {"status": list, "name": "scans", "response_code": response.status_code}
 
-def get_headers(args: Namespace) -> dict[str, str]:
+def get_headers(args: Namespace) -> dict:
     """Get X-API-Token and X-Cookie
 
     Args:
@@ -348,7 +348,7 @@ def reformat_time(input: str) -> str:
     except ValueError:
         return False
 
-def get_scan_export(args: Namespace) -> dict[str, str]:
+def get_scan_export(args: Namespace) -> dict:
     """Get the export of a scan
 
     Args:
@@ -446,7 +446,7 @@ def get_scan_export(args: Namespace) -> dict[str, str]:
     else:
         return {"status": type, "name": "error", "response_code": response.status_code}
 
-def get_scan_search(args: Namespace) -> dict[str, str]:
+def get_scan_search(args: Namespace) -> dict:
     """Get the scans that match the search string
 
     Args:
