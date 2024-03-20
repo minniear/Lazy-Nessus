@@ -43,7 +43,14 @@ from lazy_nessus.scans.actions.check import check_action_args
 from lazy_nessus.scans.actions.export import export_action_args
 from lazy_nessus.scans.actions.search import search_action_args
 
-action_arg_funcs = [ pause_action_args, resume_action_args, list_action_args, check_action_args, export_action_args, search_action_args ]
+action_arg_funcs = [
+    pause_action_args,
+    resume_action_args,
+    list_action_args,
+    check_action_args,
+    export_action_args,
+    search_action_args,
+]
 
 # Disable SSL warnings
 packages.urllib3.disable_warnings()
@@ -60,6 +67,7 @@ RED = "\033[91m"
 
 TIME_FORMAT = "%Y-%m-%d %H:%M"
 
+
 def print_info(message: str) -> None:
     """Print an info message
 
@@ -67,6 +75,7 @@ def print_info(message: str) -> None:
         message (str): Message to print
     """
     print(f"{INFO} INFO: {message}{RESET}")
+
 
 def print_error(message: str) -> None:
     """Print an error message
@@ -76,6 +85,7 @@ def print_error(message: str) -> None:
     """
     print(f"{ERR} ERROR: {message}{RESET}")
 
+
 def print_success(message: str) -> None:
     """Print a success message
 
@@ -84,12 +94,16 @@ def print_success(message: str) -> None:
     """
     print(f"{SUCCESS} SUCCESS: {message}{RESET}")
 
+
 # Get environment variables from ~/.env
 dotenv_path = os_path.join(os_path.expanduser("~"), ".env")
 load_dotenv(dotenv_path)
 
+
 def get_args() -> Namespace:
-    parser = ArgumentParser(description='Pause, resume, list, search for, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included.')
+    parser = ArgumentParser(
+        description="Pause, resume, list, search for, check the status of, or export a Nessus scan. There is also the option to schedule a pause or resume action. Telegram bot support is also included."
+    )
     parser.add_argument(
         "-v",
         "--version",
@@ -97,19 +111,25 @@ def get_args() -> Namespace:
         version=f"%(prog)s {__version__}",
         help="Show program's version number and exit",
     )
-    category_subparsers = parser.add_subparsers(title="Categories", description="Available categories", required=True)
-    
+    category_subparsers = parser.add_subparsers(
+        title="Categories", description="Available categories", required=True
+    )
+
     scans = category_subparsers.add_parser("scans", help="Actions for scans")
-    scans_actions_subparsers = scans.add_subparsers(dest="action", title="Actions", description="Available actions", required=True)
-    
+    scans_actions_subparsers = scans.add_subparsers(
+        dest="action", title="Actions", description="Available actions", required=True
+    )
+
     # TODO: Adds subparser for each category of actions
     # policies = category_subparsers.add_parser("policies", help="Actions for policies")
     # credentials = category_subparsers.add_parser("credentials", help="Actions for credentials")
     # policies_actions_subparsers = policies.add_subparsers(dest="action", title="Actions", description="Available actions", required=True)
     # credentials_actions_subparsers = credentials.add_subparsers(dest="action", title="Actions", description="Available actions", required=True)
-    
+
     std_parser = ArgumentParser(add_help=False)
-    auth_group = std_parser.add_argument_group("Authentication", "Authentication options")
+    auth_group = std_parser.add_argument_group(
+        "Authentication", "Authentication options"
+    )
     auth_group.add_argument(
         "-aT",
         "--api_token",
@@ -142,7 +162,7 @@ def get_args() -> Namespace:
         help="Nessus password (defaults to NESSUS_PASSWORD in ~/.env file)",
         type=str,
     )
-    
+
     nessus_group = std_parser.add_argument_group("Nessus", "Nessus options")
     nessus_group.add_argument(
         "-S",
@@ -152,14 +172,20 @@ def get_args() -> Namespace:
         default="localhost",
     )
     nessus_group.add_argument(
-        "-P", "--port", required=False, action="store", help="Nessus server port (default: 8834)", default=8834
+        "-P",
+        "--port",
+        required=False,
+        action="store",
+        help="Nessus server port (default: 8834)",
+        default=8834,
     )
-    
+
     for action_arg_func in action_arg_funcs:
         scans_actions_subparsers = action_arg_func(scans_actions_subparsers, std_parser)
- 
+
     args = parser.parse_args()
     return args
+
 
 def get_scan_status(args: Namespace) -> dict:
     """Get the status of a scan
@@ -175,8 +201,17 @@ def get_scan_status(args: Namespace) -> dict:
     response = get(url, headers=headers, verify=False)
     scan = loads(response.text)
     if response.status_code != 200:
-        return {"status": scan["error"], "name": "error", "response_code": response.status_code}
-    return {"status": scan["info"]["status"], "name": scan["info"]["name"], "response_code": response.status_code}
+        return {
+            "status": scan["error"],
+            "name": "error",
+            "response_code": response.status_code,
+        }
+    return {
+        "status": scan["info"]["status"],
+        "name": scan["info"]["name"],
+        "response_code": response.status_code,
+    }
+
 
 def get_scans_list(args: Namespace) -> dict:
     """Get a list of scans
@@ -192,12 +227,17 @@ def get_scans_list(args: Namespace) -> dict:
     response = get(url, headers=headers, verify=False)
     scans = loads(response.text)
     if response.status_code != 200:
-        return {"status": scans["error"], "name": "error", "response_code": response.status_code}
+        return {
+            "status": scans["error"],
+            "name": "error",
+            "response_code": response.status_code,
+        }
     list = []
     for scan in scans["scans"]:
         list.append({"id": scan["id"], "name": scan["name"], "status": scan["status"]})
 
     return {"status": list, "name": "scans", "response_code": response.status_code}
+
 
 def get_headers(args: Namespace) -> dict:
     """Get X-API-Token and X-Cookie
@@ -218,7 +258,9 @@ def get_headers(args: Namespace) -> dict:
             print_error("Unable to connect to Nessus server. Check server IP and port")
             exit(1)
         if response.status_code != 200:
-            print_error(f'Status code {response.status_code} - {loads(response.text)["error"]}')
+            print_error(
+                f'Status code {response.status_code} - {loads(response.text)["error"]}'
+            )
             exit(1)
         if args.verbose:
             print_info(f"Obtained X-API-Token")
@@ -231,12 +273,18 @@ def get_headers(args: Namespace) -> dict:
     elif args.x_cookie == None and args.api_token != None and args.password != None:
         url = f"https://{args.server}:{args.port}/session"
         try:
-            response = post(url, data={"username": args.username, "password": args.password}, verify=False)
+            response = post(
+                url,
+                data={"username": args.username, "password": args.password},
+                verify=False,
+            )
         except:
             print_error("Unable to connect to Nessus server. Check server IP and port")
             exit(1)
         if response.status_code != 200:
-            print_error(f'Status code {response.status_code} - {loads(response.text)["error"]}')
+            print_error(
+                f'Status code {response.status_code} - {loads(response.text)["error"]}'
+            )
             exit(1)
         if args.verbose:
             print_success(f"Username and password work!")
@@ -246,12 +294,18 @@ def get_headers(args: Namespace) -> dict:
     elif args.x_cookie == None and args.api_token == None and args.password != None:
         url = f"https://{args.server}:{args.port}/session"
         try:
-            response = post(url, data={"username": args.username, "password": args.password}, verify=False)
+            response = post(
+                url,
+                data={"username": args.username, "password": args.password},
+                verify=False,
+            )
         except:
             print_error("Unable to connect to Nessus server. Check server IP and port")
             exit(1)
         if response.status_code != 200:
-            print_error(f'Status code {response.status_code} - {loads(response.text)["error"]}')
+            print_error(
+                f'Status code {response.status_code} - {loads(response.text)["error"]}'
+            )
             exit(1)
         if args.verbose:
             print_success(f"Username and password work!")
@@ -264,7 +318,9 @@ def get_headers(args: Namespace) -> dict:
             print_error("Unable to connect to Nessus server. Check server IP and port")
             exit(1)
         if response.status_code != 200:
-            print_error(f'Status code {response.status_code} - {loads(response.text)["error"]}')
+            print_error(
+                f'Status code {response.status_code} - {loads(response.text)["error"]}'
+            )
             exit(1)
         if args.verbose:
             print_info(f"Obtained X-API-Token")
@@ -276,6 +332,7 @@ def get_headers(args: Namespace) -> dict:
         exit(1)
     return headers
 
+
 def scan_actions(args: Namespace) -> None:
     """Pause or resume a scan
 
@@ -284,22 +341,26 @@ def scan_actions(args: Namespace) -> None:
     """
     if args.action == "pause" or args.action == "resume":
         if args.telegramToken and args.telegramChatID and args.verbose:
-                telegram_bot_sendtext(
-                    f"Nessus: Scan {args.scan_id} is being {args.action}d", args
-                )
+            telegram_bot_sendtext(
+                f"Nessus: Scan {args.scan_id} is being {args.action}d", args
+            )
         url = f"https://{args.server}:{args.port}/scans/{args.scan_id}/{args.action}"
         headers = {"X-Api-Token": args.api_token, "X-Cookie": args.x_cookie}
         response = post(url, headers=headers, verify=False)
         if response.status_code != 200:
-            print_error(f'Status code {response.status_code} - {loads(response.text)["error"]}')
+            print_error(
+                f'Status code {response.status_code} - {loads(response.text)["error"]}'
+            )
             if args.telegramToken and args.telegramChatID:
                 telegram_bot_sendtext(
-                    f"Nessus Error: {response.status_code} - Scan {args.scan_id} not {args.action}", args
+                    f"Nessus Error: {response.status_code} - Scan {args.scan_id} not {args.action}",
+                    args,
                 )
             exit(1)
     else:
         print_error('Invalid action specified (must be "pause" or "resume")')
         exit(1)
+
 
 def telegram_bot_sendtext(bot_message: str, args: Namespace) -> None:
     """Send a message to a telegram bot
@@ -309,7 +370,11 @@ def telegram_bot_sendtext(bot_message: str, args: Namespace) -> None:
         args (Namespace): Arguments
     """
     # check if telegramToken and telegramChatID are set if action is not check
-    if args.telegramToken != None and args.telegramChatID != None and args.action not in ["check", "list"]:
+    if (
+        args.telegramToken != None
+        and args.telegramChatID != None
+        and args.action not in ["check", "list"]
+    ):
         telegram_message = bot_message.replace(" ", "%20")
         telegram_url = f"https://api.telegram.org/bot{args.telegramToken}/sendMessage?chat_id={args.telegramChatID}&text={telegram_message}"
         try:
@@ -317,6 +382,7 @@ def telegram_bot_sendtext(bot_message: str, args: Namespace) -> None:
         except:
             print("Error sending telegram message. Check token and chat ID")
             exit(1)
+
 
 def isTimeFormat(input: str) -> bool:
     """Check if time is in the correct format
@@ -333,6 +399,7 @@ def isTimeFormat(input: str) -> bool:
     except ValueError:
         return False
 
+
 def reformat_time(input: str) -> str:
     """Reformat time to the correct format
 
@@ -348,6 +415,7 @@ def reformat_time(input: str) -> str:
     except ValueError:
         return False
 
+
 def get_scan_export(args: Namespace) -> dict:
     """Get the export of a scan
 
@@ -358,11 +426,11 @@ def get_scan_export(args: Namespace) -> dict:
         dict[str, str]: Scan export
     """
     url_base = f"https://{args.server}:{args.port}/scans/{args.scan_id}/export"
-    
+
     # get the export token and file
     url = url_base
     headers = {"X-Api-Token": args.api_token, "X-Cookie": args.x_cookie}
-    
+
     if args.format == "nessus":
         body = {
             "format": "nessus",
@@ -374,7 +442,11 @@ def get_scan_export(args: Namespace) -> dict:
         response = get(url, headers=headers, verify=False)
         data: list = loads(response.text)
         if response.status_code != 200:
-            return {"status": data["error"], "name": "error", "response_code": response.status_code}
+            return {
+                "status": data["error"],
+                "name": "error",
+                "response_code": response.status_code,
+            }
         if args.verbose:
             print_success(f"X-API-Token and X-Cookie work!")
         # get the template id from a dict list of templates
@@ -385,7 +457,11 @@ def get_scan_export(args: Namespace) -> dict:
                 break
         # if template_id is not found then exit
         if template_id == None:
-            return {"status": "No Detailed Vulnerabilities By Plugin template found", "name": "error", "response_code": response.status_code}
+            return {
+                "status": "No Detailed Vulnerabilities By Plugin template found",
+                "name": "error",
+                "response_code": response.status_code,
+            }
         # set the payload
         body = {
             "format": "html",
@@ -397,17 +473,25 @@ def get_scan_export(args: Namespace) -> dict:
     response = post(url, headers=headers, verify=False, data=body)
     data = loads(response.text)
     if response.status_code != 200:
-        return {"status": response.text, "name": "error", "response_code": response.status_code}
-    
+        return {
+            "status": response.text,
+            "name": "error",
+            "response_code": response.status_code,
+        }
+
     if args.verbose:
         print_info(f"Obtained export token and file")
-    token,file = data["token"], data["file"]
-    
+    token, file = data["token"], data["file"]
+
     # check if export is ready
     url = f"https://{args.server}:{args.port}/tokens/{token}/status"
     response = get(url, headers=headers, verify=False)
     if response.status_code != 200:
-        return {"status": response.text, "name": "error", "response_code": response.status_code}
+        return {
+            "status": response.text,
+            "name": "error",
+            "response_code": response.status_code,
+        }
     data = loads(response.text)
     with Spinner(f"{INFO} INFO: Waiting for export to be ready...{RESET}"):
         while data["status"] != "ready":
@@ -422,8 +506,12 @@ def get_scan_export(args: Namespace) -> dict:
         print_info(f"Downloading export")
     response = get(url, headers=headers, verify=False)
     if response.status_code != 200:
-        return {"status": response.text, "name": "error", "response_code": response.status_code}
-    
+        return {
+            "status": response.text,
+            "name": "error",
+            "response_code": response.status_code,
+        }
+
     type = response.headers["Content-Type"]
     if type in ["text/xml", "text/html"]:
         appended_time = strftime("%Y-%m-%d_%H-%M-%S")
@@ -432,19 +520,24 @@ def get_scan_export(args: Namespace) -> dict:
         # join the list back together and remove quotes
         filename_full = "".join(filename_equals).replace('"', "")
         # split after the first _ sign
-        filename_base = filename_full.split('_')[0]
+        filename_base = filename_full.split("_")[0]
         # check if filename is base64 encoded
         if isBase64(filename_base):
-            filename = b64decode(filename_base).decode('utf-8')
+            filename = b64decode(filename_base).decode("utf-8")
         else:
             filename = filename_base
         # append the time to the filename and add the extension
-        filename = f"{filename}_{appended_time}.html" if type == "text/html" else f"{filename}_{appended_time}.nessus"
+        filename = (
+            f"{filename}_{appended_time}.html"
+            if type == "text/html"
+            else f"{filename}_{appended_time}.nessus"
+        )
         data = {"filedata": response.text, "filename": filename}
-        
+
         return {"status": data, "name": "export", "response_code": response.status_code}
     else:
         return {"status": type, "name": "error", "response_code": response.status_code}
+
 
 def get_scan_search(args: Namespace) -> dict:
     """Get the scans that match the search string
@@ -460,18 +553,29 @@ def get_scan_search(args: Namespace) -> dict:
     response = get(url, headers=headers, verify=False)
     scans = loads(response.text)
     if response.status_code != 200:
-        return {"status": scans["error"], "name": "error", "response_code": response.status_code}
+        return {
+            "status": scans["error"],
+            "name": "error",
+            "response_code": response.status_code,
+        }
     list = []
     for scan in scans["scans"]:
         search_string = args.search_string.lower()
         scan_name = scan["name"].lower()
         if search_string in scan_name:
-            list.append({"id": scan["id"], "name": scan["name"], "status": scan["status"]})
-    
+            list.append(
+                {"id": scan["id"], "name": scan["name"], "status": scan["status"]}
+            )
+
     if len(list) == 0:
-        return {"status": "No scans found", "name": "error", "response_code": response.status_code}
+        return {
+            "status": "No scans found",
+            "name": "error",
+            "response_code": response.status_code,
+        }
 
     return {"status": list, "name": "scans", "response_code": response.status_code}
+
 
 def isBase64(string) -> bool:
     """Check if string or bytes are base64 encoded
@@ -486,17 +590,47 @@ def isBase64(string) -> bool:
         bool: True if string or bytes are base64 encoded, False if not
     """
     try:
-            if isinstance(string, str):
-                    # If there's any unicode here, an exception will be thrown and the function will return false
-                    sb_bytes = bytes(string, 'ascii')
-            elif isinstance(string, bytes):
-                    sb_bytes = string
-            else:
-                    raise ValueError("Argument must be string or bytes")
-            return b64encode(b64decode(sb_bytes)) == sb_bytes
+        if isinstance(string, str):
+            # If there's any unicode here, an exception will be thrown and the function will return false
+            sb_bytes = bytes(string, "ascii")
+        elif isinstance(string, bytes):
+            sb_bytes = string
+        else:
+            raise ValueError("Argument must be string or bytes")
+        return b64encode(b64decode(sb_bytes)) == sb_bytes
     except Exception:
-            return False
-    
+        return False
+
+
+def export_scan(args: Namespace) -> None:
+    """Export a scan
+
+    Args:
+        args (Namespace): Arguments
+    """
+    try:
+        export = get_scan_export(args)
+    except KeyboardInterrupt:
+        raise KeyboardInterrupt
+    if export["response_code"] != 200 or export["name"] == "error":
+        raise Exception(
+            f"Status code {export['response_code']} - Reason: {export['status']}"
+        )
+    # set the file name and data
+    file_name = export["status"]["filename"]
+    file_data = export["status"]["filedata"]
+    # write the file
+    try:
+        with open(f"{file_name}", "w") as f:
+            f.write(file_data)
+    except:
+        if Path(file_name).is_file():
+            remove(file_name)
+        raise Exception(f"Unable to write to file {file_name}")
+    print_success(f"Exported scan to {file_name}")
+    return
+
+
 def main():
     args = get_args()
 
@@ -515,42 +649,35 @@ def main():
                 print_error("Time specified is in the past")
                 exit(1)
 
-
     # get X-API-Token and X-Cookie
     headers = get_headers(args)
     args.api_token = headers["X-API-Token"]
     args.x_cookie = headers["X-Cookie"]
-    
+
     # TODO: Make a stream for the export in case the file is too large
     if args.action == "export":
         try:
-            export = get_scan_export(args)
+            if args.format == "both":
+                args.format = "nessus"
+                export_scan(args)
+                args.format = "html"
+                export_scan(args)
+            else:
+                export_scan(args)
         except KeyboardInterrupt:
             print_error("Exiting...")
             exit(1)
-        if export["response_code"] != 200 or export["name"] == "error":
-            print_error(f"Status code {export['response_code']} - Reason: {export['status']}")
+        except Exception as e:
+            print_error(e)
             exit(1)
-        # set the file name and data       
-        file_name = export["status"]["filename"]
-        file_data = export["status"]["filedata"]
-        # write the file
-        try:
-            with open(f"{file_name}", "w") as f:
-                f.write(file_data)
-        except:
-            print_error(f"Unable to write to file {file_name}")
-            if Path(file_name).is_file():
-                remove(file_name)
-            exit(1)
-            
-        print_success(f"Exported scan to {file_name}")
         exit(0)
-        
+
     # list and search actions
     if args.action in ["list", "search"]:
         try:
-            scans = get_scans_list(args) if args.action == "list" else get_scan_search(args)
+            scans = (
+                get_scans_list(args) if args.action == "list" else get_scan_search(args)
+            )
         except KeyboardInterrupt:
             print_error("Exiting...")
             exit(1)
@@ -562,21 +689,31 @@ def main():
             exit(1)
         if args.verbose:
             print_success(f"X-API-Token and X-Cookie work!")
-        
+
         # print scan list with color coding
         print_info(f"{'ID':<10}{'Name':<70}{'Status':<10}")
         print_info(f"{'-'*10:<10}{'-'*70:<70}{'-'*10:<10}")
         for scan in response:
-            if scan['status'] == "running":
-                print_info(f"{scan['id']:<10}{scan['name']:<70}{BOLD}{CYAN}{scan['status']:<10}{RESET}")
-            elif scan['status'] == "paused":
-                print_info(f"{scan['id']:<10}{scan['name']:<70}{BOLD}{PURPLE}{scan['status']:<10}{RESET}")
-            elif scan['status'] == "completed":
-                print_info(f"{scan['id']:<10}{scan['name']:<70}{BOLD}{GREEN}{scan['status']:<10}{RESET}")
-            elif scan['status'] == "canceled":
-                print_info(f"{scan['id']:<10}{scan['name']:<70}{BOLD}{RED}{scan['status']:<10}{RESET}")
+            if scan["status"] == "running":
+                print_info(
+                    f"{scan['id']:<10}{scan['name']:<70}{BOLD}{CYAN}{scan['status']:<10}{RESET}"
+                )
+            elif scan["status"] == "paused":
+                print_info(
+                    f"{scan['id']:<10}{scan['name']:<70}{BOLD}{PURPLE}{scan['status']:<10}{RESET}"
+                )
+            elif scan["status"] == "completed":
+                print_info(
+                    f"{scan['id']:<10}{scan['name']:<70}{BOLD}{GREEN}{scan['status']:<10}{RESET}"
+                )
+            elif scan["status"] == "canceled":
+                print_info(
+                    f"{scan['id']:<10}{scan['name']:<70}{BOLD}{RED}{scan['status']:<10}{RESET}"
+                )
             else:
-                print_info(f"{scan['id']:<10}{scan['name']:<70}{BOLD}{scan['status']:<10}{RESET}")
+                print_info(
+                    f"{scan['id']:<10}{scan['name']:<70}{BOLD}{scan['status']:<10}{RESET}"
+                )
         exit(0)
 
     # get scan status
@@ -594,7 +731,7 @@ def main():
 
     if args.verbose:
         print_success(f"X-API-Token and X-Cookie work!")
-        
+
     # print scan status with color coding
     if status == "running":
         print_info(f'Scan "{name}" status: {BOLD}{CYAN}{status}{RESET}')
@@ -621,9 +758,14 @@ def main():
 
     # Scheduled action handling
     if formatted_time is not None:
-        telegram_bot_sendtext(f'Nessus: Scan "{name}" has been tasked to {args.action} at {formatted_time}', args)
+        telegram_bot_sendtext(
+            f'Nessus: Scan "{name}" has been tasked to {args.action} at {formatted_time}',
+            args,
+        )
         if args.verbose:
-            print_info(f'Scan "{name}" has been tasked to {args.action} at {formatted_time}')
+            print_info(
+                f'Scan "{name}" has been tasked to {args.action} at {formatted_time}'
+            )
         while True:
             try:
                 current_time = strftime("%Y-%m-%d %H:%M")
@@ -648,8 +790,8 @@ def main():
         elif args.action == "resume":
             # Cutt off the second "e" in resume and adding "ing" to the end
             temp = args.action.split("e")
-            res = "e".join(temp[:2]) 
-            print_info(f'{res.capitalize()}ing scan')
+            res = "e".join(temp[:2])
+            print_info(f"{res.capitalize()}ing scan")
 
     # check if scan is running or paused and wait until the opposite is true
     while True:
@@ -662,7 +804,8 @@ def main():
             if response_code != 200:
                 print_error(f"Status code {response_code} - {status}")
                 telegram_bot_sendtext(
-                    f"Nessus Error: {response_code} - Scan {args.scan_id} not {args.action}d. Reason: {status}", args
+                    f"Nessus Error: {response_code} - Scan {args.scan_id} not {args.action}d. Reason: {status}",
+                    args,
                 )
                 exit(1)
             elif status == "running" and args.action == "pause":
@@ -675,9 +818,12 @@ def main():
             print_error("Exiting...")
             exit(1)
         except:
-            print_error("Nessus Error: Error getting scan status. Action may have failed")
+            print_error(
+                "Nessus Error: Error getting scan status. Action may have failed"
+            )
             telegram_bot_sendtext(
-                f"Nessus Error: Error getting scan status for scan {args.scan_id}. Action may have failed", args
+                f"Nessus Error: Error getting scan status for scan {args.scan_id}. Action may have failed",
+                args,
             )
             exit(1)
 
