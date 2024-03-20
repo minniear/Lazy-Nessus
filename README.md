@@ -87,9 +87,9 @@ lazy-nessus scans search -s "Scan Name"
 git clone https://github.com/minniear/lazy-nessus.git
 ```
 2. Install the requirements, preferably in a virtual environment
-```bash
-python3 -m venv lazy-nessus
-cd lazy-nessus
+```powershell
+python3 -m venv venv
+cd venv
 Scripts\activate.bat
 pip install -r requirements.txt
 ```
@@ -103,9 +103,8 @@ git clone
 ```
 2. Install the requirements, preferably in a virtual environment
 ```bash
-python -m venv lazy-nessus
-cd lazy-nessus
-source bin/activate
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 3. Create a Telegram Bot (optional)
