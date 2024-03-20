@@ -27,7 +27,7 @@ def export_action_args(parser: _SubParsersAction, std_parser: ArgumentParser) ->
         "--format",
         action="store",
         help="Format to export the scan results in",
-        choices=["nessus", "html"],
+        choices=["nessus", "html", "both"],
         type=str,
         required=True,
     )
